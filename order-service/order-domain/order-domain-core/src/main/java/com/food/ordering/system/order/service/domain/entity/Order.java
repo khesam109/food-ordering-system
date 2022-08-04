@@ -35,6 +35,36 @@ public class Order extends AggregateRoot<OrderId> {
         validateItemsPrice();
     }
 
+    public void pay() {
+        if (orderStatus != OrderStatus.PENDING)
+            throw new OrderDomainException("Order is not in correct state for pay operation!");
+
+        orderStatus = OrderStatus.PAID;
+    }
+
+    public void approve() {
+        if (orderStatus != OrderStatus.PAID)
+            throw new OrderDomainException("Order is not in correct state for approve operation!");
+
+        orderStatus = OrderStatus.APPROVED;
+    }
+
+    public void initCancel(List<String> failureMessages) {
+        if (orderStatus != OrderStatus.PAID)
+            throw new OrderDomainException("Order is not in correct state for initCancel operation!");
+
+        orderStatus = OrderStatus.CANCELLING;
+        updateFailureMessages(failureMessages);
+    }
+
+    public void cancel(List<String> failureMessages) {
+        if (!(orderStatus == OrderStatus.PENDING || orderStatus == OrderStatus.CANCELLING))
+            throw new OrderDomainException("Order is not in correct state for cancel operation!");
+
+        orderStatus = OrderStatus.CANCELLED;
+        updateFailureMessages(failureMessages);
+    }
+
     private void initializeOrderItems() {
         long itemId = 1;
         for (OrderItem orderItem: items) {
@@ -67,6 +97,20 @@ public class Order extends AggregateRoot<OrderId> {
         if (orderItem.isPriceValid())
             throw new OrderDomainException("Order item price: " + orderItem.getPrice().getAmount() +
                     " is not valid for product: " + orderItem.getProduct().getId().getValue());
+    }
+
+    private void updateFailureMessages(List<String> failureMessages) {
+        if (this.failureMessage != null && failureMessages != null) {
+            this.failureMessage.addAll(
+                    failureMessages.stream().filter(
+                            message -> !message.isEmpty()
+                    ).toList()
+            );
+        }
+
+        if (this.failureMessage == null) {
+            this.failureMessage = failureMessages;
+        }
     }
 
     private Order(Builder builder) {
