@@ -12,7 +12,17 @@ public interface OrderDomainService {
 
     OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant);
     OrderPaidEvent payOrder(Order order);
+
+    /**
+     * This is a final state in order processing and after
+     * approving order there is no need to fire an event
+     */
     void approveOrder(Order order);
     OrderCancelledEvent cancelOrderPayment(Order order, List<String> failureMessage);
+
+    /**
+     * This is a final state in order processing and after
+     * cancelling order there is no need to fire an event
+     */
     void cancelOrder(Order order, List<String> failureMessage);
 }
