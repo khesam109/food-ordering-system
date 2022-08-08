@@ -9,6 +9,7 @@ import com.food.ordering.system.order.service.domain.entity.Customer;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.entity.Product;
 import com.food.ordering.system.order.service.domain.entity.Restaurant;
+import com.food.ordering.system.order.service.domain.exception.OrderDomainException;
 import com.food.ordering.system.order.service.domain.mapper.OrderDataMapper;
 import com.food.ordering.system.order.service.domain.ports.input.service.OrderApplicationService;
 import com.food.ordering.system.order.service.domain.ports.output.repository.CustomerRepository;
@@ -25,8 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -162,5 +162,54 @@ public class OrderApplicationServiceTest {
         assertEquals(createOrderResponse.getOrderStatus(), OrderStatus.PENDING);
         assertEquals(createOrderResponse.getMessage(), "Order created successfully");
         assertNotNull(createOrderResponse.getOrderTrackingId());
+    }
+
+    @Test
+    public void testCreateOrderWithWrongTotalPrice() {
+        OrderDomainException orderDomainException = assertThrows(
+                OrderDomainException.class,
+                () -> orderApplicationService.createOrder(createOrderCommandWrongPrice)
+        );
+        assertEquals(
+                orderDomainException.getMessage(),
+                "Total price: 250.00 is not equal to Order items total: 200.00!"
+        );
+    }
+
+    @Test
+    public void testCreateOrderWithWrongProductPrice() {
+        OrderDomainException orderDomainException = assertThrows(
+                OrderDomainException.class,
+                () -> orderApplicationService.createOrder(createOrderCommandWrongProductPrice)
+        );
+        assertEquals(
+                orderDomainException.getMessage(),
+                "Order item price: 60.00 is not valid for product: " + PRODUCT_ID
+        );
+    }
+
+    @Test
+    public void testCreateOrderWithPassiveRestaurant() {
+        Restaurant restaurant = Restaurant.builder()
+                .restaurantId(new RestaurantId(RESTAURANT_ID))
+                .products(List.of(
+                        new Product(new ProductId(PRODUCT_ID), "product-1", new Money(new BigDecimal("50.00"))),
+                        new Product(new ProductId(PRODUCT_ID), "product-2", new Money(new BigDecimal("50.00")))
+                ))
+                .active(false)
+                .build();
+
+        when(restaurantRepository.findRestaurantInformation(
+                orderDataMapper.createOrderCommandToRestaurant(createOrderCommand))
+        ).thenReturn(Optional.of(restaurant));
+
+        OrderDomainException orderDomainException = assertThrows(
+                OrderDomainException.class,
+                () -> orderApplicationService.createOrder(createOrderCommandWrongProductPrice)
+        );
+        assertEquals(
+                orderDomainException.getMessage(),
+                "Restaurant with id " + RESTAURANT_ID + " is currently not active!"
+        );
     }
 }
