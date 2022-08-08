@@ -31,11 +31,17 @@ public class OrderCreateCommandHandler {
     /**
      * <a href="https://stackoverflow.com/questions/3423972/spring-transaction-method-call-by-the-method-within-the-same-class-does-not-wo">
      *     Invocations transaction within the same class</a>
+     * Delegating the persistent of order to OrderCreateHelper (withing a transaction) to make
+     * sure that changes are committed before publishing event.
+     * Firing event and then trying to commit the save operation on local database could lead to a inconsistent state
      */
     public CreateOrderResponse createOrder(CreateOrderCommand createOrderCommand) {
         OrderCreatedEvent orderCreatedEvent = orderCreateHelper.persistOrder(createOrderCommand);
         log.info("Order is created with id: {}", orderCreatedEvent.getOrder().getId().getValue());
         orderCreatedPaymentRequestMessagePublisher.publish(orderCreatedEvent);
-        return orderDataMapper.orderToCreateOrderResponse(orderCreatedEvent.getOrder(), "");
+        return orderDataMapper.orderToCreateOrderResponse(
+                orderCreatedEvent.getOrder(),
+                "Order created successfully"
+        );
     }
 }
