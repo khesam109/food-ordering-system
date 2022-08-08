@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * Limit access to package level however its interface is public
+ */
 @Slf4j
 @Validated
 @Service
