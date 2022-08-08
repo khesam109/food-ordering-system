@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class CreateOrderCommand {
 
     @NotNull private final UUID customerId;

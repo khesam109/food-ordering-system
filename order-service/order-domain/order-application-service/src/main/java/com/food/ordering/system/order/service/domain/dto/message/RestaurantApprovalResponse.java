@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class RestaurantApprovalResponse {
 
     private String id;

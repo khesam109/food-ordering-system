@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class OrderItem {
 
     @NotNull private final UUID productId;

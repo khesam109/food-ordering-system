@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class TrackOrderQuery {
 
     @NotNull private final UUID orderTrackingId;

@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class OrderAddress {
 
     @Max(value = 50)

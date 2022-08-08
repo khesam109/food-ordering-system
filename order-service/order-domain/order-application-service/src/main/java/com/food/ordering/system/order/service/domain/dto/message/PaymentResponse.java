@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class PaymentResponse {
 
     private String id;

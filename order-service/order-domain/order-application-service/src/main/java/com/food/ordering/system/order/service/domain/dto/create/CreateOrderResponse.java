@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-@Jacksonized
+//@Jacksonized
 public class CreateOrderResponse {
 
     @NotNull private final UUID orderTrackingId;
