@@ -19,6 +19,7 @@
             <groupId>com.food.ordering.system</groupId>
             <artifactId>order-application-service</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.food.ordering.system</groupId>
             <artifactId>kafka-producer</artifactId>
