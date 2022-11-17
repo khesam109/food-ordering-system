@@ -1,7 +1,7 @@
--- DROP SCHEMA IF EXISTS "customer" CASCADE;
--- CREATE SCHEMA "customer";
---
--- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+DROP SCHEMA IF EXISTS "customer" CASCADE;
+CREATE SCHEMA "customer";
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE "customer".customers
 (
@@ -36,6 +36,7 @@ BEGIN
 END;
 ' LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS refresh_order_customer_m_view ON "customer".customers;
 CREATE TRIGGER refresh_order_customer_m_view
 AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE
     ON "customer".customers FOR EACH STATEMENT
