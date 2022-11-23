@@ -1,5 +1,5 @@
-DROP SCHEMA IF EXISTS restaurant CASCADE;
-CREATE SCHEMA restaurant;
+DROP SCHEMA IF EXISTS "restaurant" CASCADE;
+CREATE SCHEMA "restaurant";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -12,8 +12,8 @@ CREATE TABLE "restaurant".restaurants
     CONSTRAINT restaurants_pkey PRIMARY KEY (id)
 );
 
-DROP TYPE IF EXISTS approval_status;
-CREATE TYPE approval_status AS ENUM ('APPROVED', 'REJECTED');
+DROP TYPE IF EXISTS "restaurant".approval_status;
+CREATE TYPE "restaurant".approval_status AS ENUM ('APPROVED', 'REJECTED');
 
 DROP TABLE IF EXISTS "restaurant".order_approval CASCADE;
 CREATE TABLE "restaurant".order_approval
@@ -21,7 +21,7 @@ CREATE TABLE "restaurant".order_approval
     id uuid NOT NULL,
     restaurant_id uuid NOT NULL,
     order_id uuid NOT NULL,
-    status approval_status NOT NULL,
+    status "restaurant".approval_status NOT NULL,
     CONSTRAINT order_approval_pkey PRIMARY KEY (id)
 );
 
