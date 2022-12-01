@@ -31,7 +31,15 @@ public class PaymentOutboxScheduler implements OutboxScheduler {
         this.paymentRequestMessagePublisher = paymentRequestMessagePublisher;
     }
 
-    //FIXME: I think fixedDelayString is wrong and should replaced with fixedRateString
+    /**
+     * FIXME: I think fixedDelayString is wrong and should replaced with fixedRateString
+     * *********************************************************************************
+     * Depending on the response time of kafka cluster to producer, these update method may not be called
+     * before the second run of the scheduler. It means that the same outbox message could be published more
+     * than once (rare case but possible). This can be avoided with strict lockAndWait implementation which
+     * impose performance penalty. To overcome, we double-check this case on the consumer side (payment-service)
+     * and will eliminate duplicate messages.
+     */
     @Override
     @Transactional
     @Scheduled(fixedDelayString = "${order-service.outbox-scheduler-fixed-rate}",
