@@ -25,7 +25,6 @@ public class OrderCreateHelper {
     private final CustomerRepository customerRepository;
     private final RestaurantRepository restaurantRepository;
     private final OrderDataMapper orderDataMapper;
-    private final OrderCreatedPaymentRequestMessagePublisher orderCreatedPaymentRequestMessagePublisher;
 
     @Autowired
     public OrderCreateHelper(
@@ -34,25 +33,28 @@ public class OrderCreateHelper {
             CustomerRepository customerRepository,
             RestaurantRepository restaurantRepository,
             OrderDataMapper orderDataMapper,
-            OrderCreatedPaymentRequestMessagePublisher orderCreatedPaymentRequestMessagePublisher
     ) {
         this.orderDomainService = orderDomainService;
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.restaurantRepository = restaurantRepository;
         this.orderDataMapper = orderDataMapper;
-        this.orderCreatedPaymentRequestMessagePublisher = orderCreatedPaymentRequestMessagePublisher;
     }
 
+
+    /**
+     * After implementing outbox pattern you may remove the transactional for this method or keep it.
+     * This is because in Spring, inner transaction will simply use outer transaction by default since
+     * the default propagation method is REQUIRED. Therefore, if there is a transaction, it will use
+     * the existing otherwise it will create a new one. In this scenarion this transaction will stick
+     * to its parent transaction (createOrder).
+     */
     @Transactional
     public OrderCreatedEvent persistOrder(CreateOrderCommand createOrderCommand) {
         checkCustomer(createOrderCommand.getCustomerId());
         Restaurant restaurant = checkRestaurant(createOrderCommand);
         Order order = orderDataMapper.createOrderCommandToOrder(createOrderCommand);
-        OrderCreatedEvent orderCreatedEvent = orderDomainService.validateAndInitiateOrder(
-                order, restaurant,
-                orderCreatedPaymentRequestMessagePublisher
-        );
+        OrderCreatedEvent orderCreatedEvent = orderDomainService.validateAndInitiateOrder(order, restaurant);
         saveOrder(order);
         log.info("Order is created with id {}: ", orderCreatedEvent.getOrder().getId().getValue());
 
